@@ -3,6 +3,7 @@ package main
 import (
 	"learning-backend/config"
 	"learning-backend/database"
+	"learning-backend/handlers"
 	"learning-backend/routes"
 
 	//"learning-backend/handlers"
@@ -20,7 +21,9 @@ func main() {
 
 	app := fiber.New()
 
-	routes.SetupRoutes(app)
+	
+	handlers.SetupRoutes(app)
+	
 	config.LoadKeys()
 
 	

@@ -3,19 +3,28 @@ package handlers
 import (
 	//"learning-backend/config"
 	//"hash"
-	"learning-backend/database"
 	dto_ "learning-backend/dto"
-	"learning-backend/middleware"
+	"learning-backend/helper"
+	"learning-backend/service"
+	"net/http"
+
+	//"learning-backend/middleware"
 
 	//"learning-backend/dto"
-	"learning-backend/models"
 
 	"github.com/gofiber/fiber/v2"
 	//"golang.org/x/crypto/bcrypt"
 )
 
-func CreateUser(c *fiber.Ctx) error {
-	var input dto_.CreateUserDTO //dto.CreateUserDTO
+type UserHandler struct {
+	//svc *service.UserService
+		svc service.UserService
+}
+
+
+
+func (h UserHandler) SignUp(c *fiber.Ctx) error {
+	var input dto_.SignUp //dto.CreateUserDTO
 
 	if err := c.BodyParser(&input); err != nil {
 
@@ -23,48 +32,31 @@ func CreateUser(c *fiber.Ctx) error {
 			"error": "invalid input",
 		})
 	}
-	//code to prevent duplicate emails record
-	var existingUser models.User
-	database.DB.Where("email=?", input.Email).First(&existingUser)
-	if existingUser.ID != 0 {
+
+	if helper.EmailExists(input.Email) {
 		return c.Status(400).JSON(fiber.Map{
 			"error": "Email already exists",
 		})
-
 	}
+	
 
-	hashedPassword, err := middleware.GenerateHashedPassword(input.Password)
-
+	
+	token, err := h.svc.SignUp(input)
 	if err != nil {
-		return err
-	}
-
-	//Create model from DTO input
-	user := models.User{
-		FirstName:     input.Name,
-		Email:    input.Email,
-		Password: string(hashedPassword), // (later we’ll hash it)
-	}
-
-	//save to database
-	result := database.DB.Create(&user)
-	if result.Error != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": result.Error.Error(),
+		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
+			"message": "error on signup",
 		})
 	}
 
-	// Send response DTO (hide password)
-	response := dto_.UserResponseDTO{
-		ID:    user.ID,
-		Name:  user.FirstName,
-		Email: user.Email,
-	}
-	return c.Status(201).JSON(response)
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "register",
+		"token":   token,
+	})
+
 }
 
-func Login(c *fiber.Ctx) error {
-	var input dto_.LoginUserDTO
+func (h UserHandler) SignIn(c *fiber.Ctx) error {
+	var input dto_.SignIn
 
 	if err := c.BodyParser(&input); err != nil {
 
@@ -73,16 +65,17 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	password, err := middleware.GenerateHashedPassword(input.Password)
-  if err != nil {
-		return err
-	}
-
-	err = middleware.VerifyPassword(input.Password, password)
+	token, err := h.svc.SignIn(input.Email, input.Password)
 	if err != nil {
-		return err
+		return c.Status(http.StatusUnauthorized).JSON(&fiber.Map{
+			"message": "invalid credentials",
+		})
 	}
 
-	return nil
+	return c.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "login successful",
+		"token":   token,
+	})
+
 
 }

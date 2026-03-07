@@ -6,8 +6,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
-
-func SetupRoutes(app *fiber.App) {
+type RouteHandler struct {
+	handlers handlers.UserHandler
+}
+func (r RouteHandler) SetupRoutes(app *fiber.App) {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Backend is running")
@@ -19,8 +21,8 @@ func SetupRoutes(app *fiber.App) {
 	
 	pubRoutes := app.Group("/api")
 	
-	pubRoutes.Post("/resgister", handlers.CreateUser) 
-	pubRoutes.Post("/login", handlers.Login)
+	pubRoutes.Post("/signup", r.handlers.SignUp) 
+	pubRoutes.Post("/signin", r.handlers.SignIn)
 
 	// priRoutes := app.Group("/user", middleware.AuthMiddleware) // Apply auth middleware to all routes in this group
 
