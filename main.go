@@ -2,8 +2,7 @@ package main
 
 import (
 	"learning-backend/config"
-	"learning-backend/database"
-	"learning-backend/handlers"
+	"learning-backend/container"
 	"learning-backend/routes"
 
 	//"learning-backend/handlers"
@@ -15,23 +14,21 @@ import (
 )
 
 
+
+
 func main() {
 
-	database.ConnectDB()
 
 	app := fiber.New()
 
-	userHandler := handlers.NewUserHandler()
+	container := container.BuildContainer()
 
-	routeHandler := routes.NewRouteHandler(userHandler)
-	routeHandler.SetupRoutes(app)
-	
+	routes.SetupRoutes(app, container)
+
 	config.LoadKeys()
 
-	
+
 	fmt.Println("server is running")
 
 	app.Listen(":3000")
-
-	
 }

@@ -1,18 +1,16 @@
 package routes
 
 import (
-	"learning-backend/handlers"
+	"learning-backend/container"
 	//"learning-backend/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
-type RouteHandler struct {
-	handlers handlers.UserHandler
-}
 
 
 
-func (r *RouteHandler) SetupRoutes(app *fiber.App) {
+
+func  SetupRoutes(app *fiber.App, c *container.Container) {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Backend is running")
@@ -24,8 +22,8 @@ func (r *RouteHandler) SetupRoutes(app *fiber.App) {
 	
 	pubRoutes := app.Group("/api")
 	
-	pubRoutes.Post("/signup", r.handlers.SignUp) 
-	pubRoutes.Post("/signin", r.handlers.SignIn)
+	pubRoutes.Post("/signup", c.UserHandler.SignUp) 
+	pubRoutes.Post("/signin", c.UserHandler.SignIn)
 
 	// priRoutes := app.Group("/user", middleware.AuthMiddleware) // Apply auth middleware to all routes in this group
 
@@ -42,9 +40,3 @@ func (r *RouteHandler) SetupRoutes(app *fiber.App) {
 
 }
 
-// Constructor (BEST PRACTICE)
-func NewRouteHandler(h handlers.UserHandler) RouteHandler {
-    return RouteHandler{
-        handlers: h,
-    }
-}

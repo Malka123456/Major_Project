@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	dto_ "learning-backend/dto"
-	"learning-backend/container"
 	"learning-backend/helper"
 	"learning-backend/models"
 	"learning-backend/repository"
@@ -64,9 +63,12 @@ func (s *UserService) SignIn(email string, password string) (string, error) {
 	return s.Auth.GenerateToken(user.ID, user.Email, string(user.UserType))
 }
 
-func NewUserService(h container.HttpHandler) UserService {
-	return UserService{
-		Auth: h.Auth,
-		Repo: repository.NewUserRepository(h.DB),
+func NewUserService(
+	repo repository.UserRepository,
+	auth helper.AuthHelper,
+) *UserService {
+	return &UserService{
+		Repo: repo,
+		Auth: auth,
 	}
 }

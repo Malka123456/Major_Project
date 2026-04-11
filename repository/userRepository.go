@@ -179,6 +179,7 @@ func (r userRepository) UpdateUser(id uint, u models.User) (models.User, error) 
 	return user, nil
 }
 
+
 // NewUserRepository creates a new UserRepository
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{

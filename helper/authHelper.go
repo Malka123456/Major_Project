@@ -3,8 +3,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"learning-backend/database"
-	"learning-backend/models"
+	"learning-backend/config"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -13,7 +12,7 @@ import (
 
 type AuthHelper struct {
 
-	secret string
+	Secret string
 }
 
 
@@ -42,17 +41,7 @@ func (h AuthHelper) VerifyPassword(pP string, hP string) error {
 	return nil
 }
 
-func EmailExists(email string) bool {
 
-	//code to prevent duplicate emails record
-	var existingUser models.User
-	database.DB.Where("email=?", email).First(&existingUser)
-	if existingUser.ID != 0 {
-		return true
-
-	}
-	return false
-}
 
 func (h AuthHelper) GenerateToken(userID uint, email string, role string) (string, error) {
 
@@ -67,11 +56,18 @@ func (h AuthHelper) GenerateToken(userID uint, email string, role string) (strin
 			"exp":     jwt.TimeFunc().Add(24 * time.Hour * 7).Unix(), // Token expires in a week
 		})
 
-		tokenString, err := token.SignedString([]byte(h.secret))
+		tokenString, err := token.SignedString([]byte(h.Secret))
 
 		if err != nil {
 			return "", fmt.Errorf("unable to sign token: %w", err)
 		}
 
 		return tokenString, nil
+}
+
+func NewAuthHelper(cfg config.AppConfig) AuthHelper {
+	return AuthHelper{
+		Secret: cfg.JWTSecret,
+		
+	}
 }

@@ -4,7 +4,6 @@ import (
 	//"learning-backend/config"
 	//"hash"
 	dto_ "learning-backend/dto"
-	"learning-backend/helper"
 	"learning-backend/service"
 	"net/http"
 
@@ -18,7 +17,7 @@ import (
 
 type UserHandler struct {
 	//svc *service.UserService
-		svc service.UserService
+		Service *service.UserService
 }
 
 
@@ -32,16 +31,10 @@ func (h *UserHandler) SignUp(c *fiber.Ctx) error {
 			"error": "invalid input",
 		})
 	}
-
-	if helper.EmailExists(input.Email) {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Email already exists",
-		})
-	}
 	
 
 	
-	token, err := h.svc.SignUp(input)
+	token, err := h.Service.SignUp(input)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"message": "error on signup",
@@ -65,7 +58,7 @@ func (h *UserHandler) SignIn(c *fiber.Ctx) error {
 		})
 	}
 
-	token, err := h.svc.SignIn(input.Email, input.Password)
+	token, err := h.Service.SignIn(input.Email, input.Password)
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(&fiber.Map{
 			"message": "invalid credentials",
@@ -80,6 +73,8 @@ func (h *UserHandler) SignIn(c *fiber.Ctx) error {
 
 }
 
-func NewUserHandler() UserHandler {
-    return UserHandler{}
+func NewUserHandler(service *service.UserService) *UserHandler {
+	return &UserHandler{
+		Service: service,
+	}
 }
