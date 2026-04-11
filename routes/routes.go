@@ -9,7 +9,10 @@ import (
 type RouteHandler struct {
 	handlers handlers.UserHandler
 }
-func (r RouteHandler) SetupRoutes(app *fiber.App) {
+
+
+
+func (r *RouteHandler) SetupRoutes(app *fiber.App) {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Backend is running")
@@ -37,4 +40,11 @@ func (r RouteHandler) SetupRoutes(app *fiber.App) {
 	
 
 
+}
+
+// Constructor (BEST PRACTICE)
+func NewRouteHandler(h handlers.UserHandler) RouteHandler {
+    return RouteHandler{
+        handlers: h,
+    }
 }

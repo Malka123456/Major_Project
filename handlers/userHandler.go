@@ -23,7 +23,7 @@ type UserHandler struct {
 
 
 
-func (h UserHandler) SignUp(c *fiber.Ctx) error {
+func (h *UserHandler) SignUp(c *fiber.Ctx) error {
 	var input dto_.SignUp //dto.CreateUserDTO
 
 	if err := c.BodyParser(&input); err != nil {
@@ -55,7 +55,7 @@ func (h UserHandler) SignUp(c *fiber.Ctx) error {
 
 }
 
-func (h UserHandler) SignIn(c *fiber.Ctx) error {
+func (h *UserHandler) SignIn(c *fiber.Ctx) error {
 	var input dto_.SignIn
 
 	if err := c.BodyParser(&input); err != nil {
@@ -78,4 +78,8 @@ func (h UserHandler) SignIn(c *fiber.Ctx) error {
 	})
 
 
+}
+
+func NewUserHandler() UserHandler {
+    return UserHandler{}
 }

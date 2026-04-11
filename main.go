@@ -21,8 +21,10 @@ func main() {
 
 	app := fiber.New()
 
-	
-	handlers.SetupRoutes(app)
+	userHandler := handlers.NewUserHandler()
+
+	routeHandler := routes.NewRouteHandler(userHandler)
+	routeHandler.SetupRoutes(app)
 	
 	config.LoadKeys()
 
